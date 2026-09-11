@@ -14,6 +14,24 @@ queue.
 
 ## Running it
 
+### Option A — Docker (zero setup)
+
+```bash
+docker compose up --build
+```
+
+That's it. It starts Postgres, runs migrations, seeds the demo data, and starts both
+servers — open **http://localhost:5173**. Every restart re-seeds to a clean, known demo
+state (the seed script truncates first), so it's safe to `docker compose down && docker
+compose up` any time you want a fresh Meera Nair.
+
+> Built and validated with `docker compose config`, but not run end-to-end here — this
+> sandbox doesn't have a usable Docker daemon. If anything doesn't come up cleanly, the
+> logs from `docker compose up` (no `-d`) will show which service failed and why — send
+> them over and I'll fix it.
+
+### Option B — run natively
+
 ```bash
 # 1. Postgres (adjust to your setup)
 createuser consentia --pwprompt --createdb   # password: consentia_dev (or edit backend/.env)
