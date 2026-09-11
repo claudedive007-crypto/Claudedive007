@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Consentia — Every Module, Explained</title>
+<style>
+:root{
+  --navy:#0B2545;--navy2:#123A6B;--ink:#14213A;--ink2:#3A4553;--ink3:#5A6472;--ink4:#8A94A2;
+  --blue:#1B5FD1;--blue2:#3B7DE0;--green:#0EA672;--red:#DC2B45;--amber:#C8860D;--violet:#6C4BD8;
+  --line:#E4E9F0;--line2:#EEF2F7;--bg:#F5F8FC;--page:#EDF1F6;
+  --blue-lt:#EAF1FD;--green-lt:#E7F6EF;--red-lt:#FCECEE;--amber-lt:#FBF3E4;--violet-lt:#EFEAF9;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--page);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* hero */
+.hero{background:linear-gradient(150deg,#06152A,#0B2545 46%,#123A6B);color:#fff;padding:48px 0 44px}
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:24px}
+.brand .m{width:35px;height:35px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--green));display:grid;place-items:center}
+.brand b{font-size:16px;font-weight:700}
+.hero h1{font-size:clamp(27px,4.4vw,42px);font-weight:750;letter-spacing:-1.2px;line-height:1.08}
+.hero p{font-size:15.5px;color:rgba(255,255,255,.82);margin-top:13px;max-width:62ch;line-height:1.65}
+
+/* group nav */
+.gnav{position:sticky;top:0;z-index:30;background:rgba(237,241,246,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:11px 0}
+.gnav .row{display:flex;gap:7px;flex-wrap:wrap}
+.gnav a{font-size:12px;font-weight:650;padding:6px 13px;border-radius:18px;background:#fff;border:1px solid var(--line);color:var(--ink2);text-decoration:none;transition:.15s;white-space:nowrap}
+.gnav a:hover{border-color:var(--blue2);color:var(--blue)}
+.gnav a i{width:7px;height:7px;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:middle}
+
+/* group heading */
+.ghead{padding:34px 0 6px}
+.ghead h2{font-size:20px;font-weight:750;letter-spacing:-.5px;display:flex;align-items:center;gap:11px}
+.ghead h2 i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.ghead p{font-size:13.5px;color:var(--ink3);margin-top:5px}
+
+/* module card */
+.mod{background:#fff;border:1px solid var(--line);border-radius:15px;margin-bottom:14px;overflow:hidden;border-top:3px solid var(--c)}
+.mhead{padding:15px 19px 0;display:flex;align-items:flex-start;gap:12px}
+.mnum{width:27px;height:27px;border-radius:8px;background:var(--c);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:750;flex-shrink:0}
+.mtitle{font-size:17px;font-weight:700;letter-spacing:-.3px;line-height:1.25}
+.mstar{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--amber-lt);color:var(--amber);margin-left:7px;vertical-align:middle;white-space:nowrap}
+.mbody{display:grid;grid-template-columns:1fr 1.05fr;gap:22px;padding:12px 19px 19px}
+@media(max-width:860px){.mbody{grid-template-columns:1fr;gap:16px}}
+.mwhat{font-size:14px;color:var(--ink2);line-height:1.62}
+.mwhat b{color:var(--ink);font-weight:650}
+.eg{margin-top:13px;padding:11px 14px;background:var(--bg);border-left:3px solid var(--c);border-radius:0 9px 9px 0}
+.eg .el{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--c);margin-bottom:4px}
+.eg .et{font-size:13px;color:var(--ink2);line-height:1.55}
+.eg .et b{color:var(--ink);font-weight:650}
+.viz{background:var(--bg);border:1px solid var(--line2);border-radius:11px;padding:15px;display:flex;flex-direction:column;justify-content:center;min-height:150px}
+
+/* ---- diagram primitives ---- */
+.flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center}
+.fstep{background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 10px;text-align:center;flex:1;min-width:64px}
+.fstep .ft{font-size:10.5px;font-weight:650;line-height:1.25}
+.fstep .fd{font-size:9px;color:var(--ink4);margin-top:2px;line-height:1.3}
+.farr{color:var(--ink4);font-size:12px;padding:0 4px;flex-shrink:0}
+.vflow{display:flex;flex-direction:column;gap:5px}
+.vstep{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:11.5px;display:flex;align-items:center;gap:9px}
+.vstep .n{width:19px;height:19px;border-radius:6px;background:var(--c);color:#fff;display:grid;place-items:center;font-size:9.5px;font-weight:700;flex-shrink:0}
+.varr{text-align:center;color:var(--ink4);font-size:11px;line-height:.9}
+.rowb{display:flex;align-items:center;justify-content:space-between;gap:9px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:11.5px;margin-bottom:5px}
+.rowb:last-child{margin-bottom:0}
+.tagx{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.tg{background:var(--green-lt);color:var(--green)}
+.tr{background:var(--red-lt);color:var(--red)}
+.ta{background:var(--amber-lt);color:var(--amber)}
+.tb{background:var(--blue-lt);color:var(--blue)}
+.tn{background:var(--line2);color:var(--ink4)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+.chip{font-size:10.5px;font-weight:600;padding:5px 10px;border-radius:16px;background:#fff;border:1px solid var(--line);color:var(--ink2)}
+.chip.on{background:var(--blue-lt);border-color:#CBDCF3;color:var(--blue)}
+.bigv{text-align:center}
+.bigv .n{font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1}
+.bigv .l{font-size:10.5px;color:var(--ink4);margin-top:3px}
+.mini{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.mtile{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+.mtile .v{font-size:17px;font-weight:750;line-height:1}
+.mtile .k{font-size:9.5px;color:var(--ink4);margin-top:2px}
+.bar{height:6px;background:var(--line2);border-radius:3px;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;border-radius:3px}
+.scr{background:#fff;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.scr .sb{background:var(--navy);padding:6px 10px;font-size:9.5px;color:rgba(255,255,255,.8);font-weight:600}
+.scr .sc{padding:11px}
+.psw{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line2);font-size:11px;gap:8px}
+.psw:last-child{border-bottom:none}
+.tgl{width:29px;height:16px;border-radius:9px;background:#CBD3DD;position:relative;flex-shrink:0}
+.tgl::after{content:'';position:absolute;width:12px;height:12px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left .2s}
+.tgl.on{background:var(--green)}.tgl.on::after{left:15px}
+.tgl.lk{background:#9FB3C8}
+.hashb{background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 11px;font-size:10.5px;display:flex;justify-content:space-between;gap:8px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.hashb .lbl{font-family:'Inter',sans-serif;font-weight:600;color:var(--ink)}
+.hashb .h{color:var(--blue)}
+.lnk{text-align:center;color:var(--ink4);font-size:10px;line-height:1}
+.spark{display:flex;align-items:flex-end;gap:3px;height:46px;justify-content:center}
+.spark i{width:9px;border-radius:2px 2px 0 0;display:block}
+.clockrow{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:11.5px}
+.clockrow .c{font-size:15px;font-weight:750;font-family:ui-monospace,Menlo,monospace}
+.tree{font-size:11px}
+.tnode{background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 11px;display:inline-block;font-weight:600}
+.tsplit{display:flex;gap:9px;margin-top:6px}
+.tbranch{flex:1;text-align:center}
+.tbranch .lb{font-size:9px;color:var(--ink4);margin-bottom:4px}
+.api{background:var(--navy);border-radius:9px;padding:11px 13px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;line-height:1.7;color:#CBDCF3;overflow-x:auto}
+.api .k{color:#7FC5FF}.api .s{color:#8FE9C0}.api .c{color:#8A94A2}
+.tabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.tab{font-size:10px;font-weight:650;padding:5px 10px;border-radius:7px;background:#fff;border:1px solid var(--line);color:var(--ink3)}
+.tab.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.g3c{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center}
+.g3c .i{font-size:15px;font-weight:750;line-height:1}
+.g3c .t{font-size:9px;color:var(--ink4);margin-top:2px}
+
+.closing{background:linear-gradient(150deg,#06152A,#123A6B);color:#fff;padding:48px 0;text-align:center;margin-top:34px}
+.closing h2{font-size:clamp(20px,3.1vw,29px);font-weight:750;letter-spacing:-.7px;max-width:26ch;margin:0 auto 13px;line-height:1.2}
+.closing p{color:rgba(255,255,255,.8);font-size:15px;max-width:56ch;margin:0 auto;line-height:1.65}
+.foot{text-align:center;padding:24px 0;font-size:12px;color:var(--ink4);line-height:1.7}
+@media print{.gnav{display:none}.mod{break-inside:avoid}body{background:#fff}}
+</style>
+</head>
+<body>
+
+<header class="hero"><div class="wrap">
+  <div class="brand"><div class="m"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6z"/><path d="m9 12 2 2 4-4"/></svg></div><b>Consentia</b></div>
+  <h1>Every module, explained.</h1>
+  <p>All 21 screens, one at a time. Each gets a picture of what it does, and a real example using the same customer — Meera Nair — so the flow is easy to follow from module to module.</p>
+</div></header>
+
+<nav class="gnav"><div class="wrap"><div class="row">
+  <a href="#g1"><i style="background:#1B5FD1"></i>Overview</a>
+  <a href="#g2"><i style="background:#0EA672"></i>Consent lifecycle</a>
+  <a href="#g3"><i style="background:#C8860D"></i>Automation</a>
+  <a href="#g4"><i style="background:#6C4BD8"></i>Enterprise</a>
+  <a href="#g5"><i style="background:#3B7DE0"></i>Intelligence</a>
+  <a href="#g6"><i style="background:#DC2B45"></i>Governance</a>
+</div></div></nav>
+
+<main class="wrap">
+
+<!-- ============ GROUP 1 ============ -->
+<section id="g1" class="ghead"><h2><i style="background:#1B5FD1"></i>Overview</h2><p>Where you land. One module.</p></section>
+
+<div class="mod" style="--c:#1B5FD1">
+  <div class="mhead"><div class="mnum">1</div><div class="mtitle">Dashboard</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The morning briefing. It opens by telling you the <b>three things that need attention today</b>, then shows real people and what just happened to them — not a wall of counters. The headline numbers sit underneath, deliberately quiet.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">You log in at 9am. Before any chart, it says: <b>a breach is open and unfiled, geolocation is being collected with no lawful basis, and 318 minor accounts have no guardian.</b> Below that, you see Meera withdrew marketing four minutes ago.</div></div>
+    </div>
+    <div class="viz">
+      <div class="scr"><div class="sb">Dashboard</div><div class="sc">
+        <div style="background:var(--navy);color:#fff;border-radius:7px;padding:9px 11px;font-size:10.5px;line-height:1.45;margin-bottom:9px"><b>Three things need you today</b><br><span style="opacity:.8">A breach is open and unfiled…</span></div>
+        <div class="rowb"><span>🔴 <b>Meera Nair</b> withdrew marketing</span><span class="tagx tr">1 failed</span></div>
+        <div class="rowb"><span>🟢 <b>Rohit Kapoor</b> consented in Tamil</span><span class="tagx tg">receipt</span></div>
+        <div style="display:flex;gap:5px;margin-top:8px">
+          <div class="mtile" style="flex:1"><div class="v" style="font-size:14px">5,000</div><div class="k">held</div></div>
+          <div class="mtile" style="flex:1"><div class="v" style="font-size:14px;color:var(--red)">392</div><div class="k">withdrawn</div></div>
+          <div class="mtile" style="flex:1"><div class="v" style="font-size:14px;color:var(--amber)">1,842</div><div class="k">expiring</div></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ GROUP 2 ============ -->
+<section id="g2" class="ghead"><h2><i style="background:#0EA672"></i>Consent lifecycle</h2><p>The daily work: collect a choice, store it, check it, let the customer manage it. Seven modules.</p></section>
+
+<div class="mod" style="--c:#0EA672">
+  <div class="mhead"><div class="mnum">2</div><div class="mtitle">Consent Capture</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">Eight different front doors — app, web, WhatsApp, branch, call centre, email link, QR, partner API. Whichever the customer uses, the platform writes the <b>identical record with the same strength of proof</b>. The wizard is five steps and refuses shortcuts.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">Meera opens an account at a branch. The officer runs the wizard on a tablet: she sees the notice <b>in Tamil</b>, ticks account servicing and loan processing but leaves marketing off, verifies by OTP, and gets a receipt on her phone.</div></div>
+    </div>
+    <div class="viz">
+      <div class="chips" style="margin-bottom:11px">
+        <span class="chip on">App</span><span class="chip">Web</span><span class="chip">WhatsApp</span><span class="chip on">Branch</span><span class="chip">Call</span><span class="chip">Email</span><span class="chip">QR</span><span class="chip">Partner</span>
+      </div>
+      <div class="flow">
+        <div class="fstep"><div class="ft">Identify</div><div class="fd">who is this</div></div><span class="farr">→</span>
+        <div class="fstep"><div class="ft">Notice</div><div class="fd">their language</div></div><span class="farr">→</span>
+        <div class="fstep"><div class="ft">Purposes</div><div class="fd">one by one</div></div><span class="farr">→</span>
+        <div class="fstep"><div class="ft">OTP</div><div class="fd">verify</div></div><span class="farr">→</span>
+        <div class="fstep"><div class="ft">Receipt</div><div class="fd">proof</div></div>
+      </div>
+      <div style="font-size:10px;color:var(--ink4);text-align:center;margin-top:9px">Same five steps on all eight channels → one identical record</div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#0EA672">
+  <div class="mhead"><div class="mnum">3</div><div class="mtitle">Consent Drives</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">Go and <b>ask a group of customers</b> for consent. Pick a purpose, an audience and the channels to reach them on, then watch responses come back. It is a compliance tool, not a marketing campaign tool — no budgets, no A/B tests.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">1,842 marketing consents expire next month. You create a drive: purpose <b>Marketing</b>, audience <b>Existing customers</b>, channels <b>WhatsApp + Email</b>, send now. Over the week, 61% respond and 68% of those say yes.</div></div>
+    </div>
+    <div class="viz">
+      <div class="vflow">
+        <div class="vstep"><span class="n">1</span><span>Purpose: <b>Marketing</b> · Audience: <b>Existing</b></span></div>
+        <div class="varr">↓</div>
+        <div class="vstep"><span class="n">2</span><span>Send on <b>WhatsApp + Email</b> to 48,200</span></div>
+        <div class="varr">↓</div>
+        <div class="vstep"><span class="n">3</span><span>Responses land in the repository as proof</span></div>
+      </div>
+      <div class="mini" style="margin-top:9px">
+        <div class="mtile"><div class="v" style="color:var(--blue)">61%</div><div class="k">responded</div></div>
+        <div class="mtile"><div class="v" style="color:var(--green)">68%</div><div class="k">approved</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#0EA672">
+  <div class="mhead"><div class="mnum">4</div><div class="mtitle">Consent Repository</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The filing cabinet that <b>cannot be edited</b>. Every consent the bank holds, in one place. You never overwrite a record — you add a new event on top. Today's answer is worked out from the history, and the history stays forever.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">Meera's marketing consent has three events: <b>granted</b> in Feb, <b>notice v4 re-accepted</b> in June, <b>withdrawn</b> in July. Nothing was deleted. The current answer — "no" — is derived from the top of that stack.</div></div>
+    </div>
+    <div class="viz">
+      <div class="hashb"><span class="lbl">Granted · Marketing</span><span class="h">14 Feb</span></div>
+      <div class="lnk">↓ appended</div>
+      <div class="hashb"><span class="lbl">Notice v4 re-accepted</span><span class="h">02 Jun</span></div>
+      <div class="lnk">↓ appended</div>
+      <div class="hashb" style="border-color:#F3C9CF;background:#FEF7F8"><span class="lbl" style="color:var(--red)">Withdrawn · Marketing</span><span class="h" style="color:var(--red)">14 Jul</span></div>
+      <div style="font-size:10px;color:var(--ink4);text-align:center;margin-top:8px">Nothing erased · current state = top of stack</div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#0EA672">
+  <div class="mhead"><div class="mnum">5</div><div class="mtitle">Consent Health</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">One honest question: <b>how much of the consent you hold can you actually rely on today?</b> Everything else — expired, withdrawn, still pending — cannot be used. One score, four numbers, and the list of what lapses next.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">The bank holds 5,000 consents but scores <b>52%</b>. 1,428 have expired and 392 were withdrawn. The screen's button takes you straight to a renewal drive — because renewal matters more than collecting more.</div></div>
+    </div>
+    <div class="viz">
+      <div style="display:flex;gap:14px;align-items:center">
+        <svg viewBox="0 0 128 78" style="width:104px;flex-shrink:0"><path d="M12 66 A52 52 0 0 1 116 66" fill="none" stroke="#EEF2F7" stroke-width="13" stroke-linecap="round"/><path d="M12 66 A52 52 0 0 1 116 66" fill="none" stroke="#C8860D" stroke-width="13" stroke-linecap="round" stroke-dasharray="163" stroke-dashoffset="78"/><text x="64" y="60" text-anchor="middle" font-size="26" font-weight="800" fill="#14213A">52</text></svg>
+        <div style="flex:1">
+          <div class="rowb"><span>Valid now</span><span class="tagx tg">2,582</span></div>
+          <div class="rowb"><span>Expiring in 30d</span><span class="tagx ta">1,842</span></div>
+          <div class="rowb"><span>Expired</span><span class="tagx tr">1,428</span></div>
+          <div class="rowb"><span>Withdrawn</span><span class="tagx tn">392</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#0EA672">
+  <div class="mhead"><div class="mnum">6</div><div class="mtitle">Validation Engine <span class="mstar">★ DEAL-WINNER</span></div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The bouncer at the door. Before <b>any</b> system uses a customer's data, it asks one question and gets one answer in milliseconds. If consent cannot be proven — or anything goes wrong — the answer is <b>no</b>. Silence is never a yes.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">The CRM wants to email Meera. It asks: <i>may I use Meera's data for marketing?</i> Answer: <b>BLOCK — consent withdrawn 14 Jul</b>. But when core banking asks about KYC, the answer is <b>ALLOW</b> — that runs on legal obligation, which she cannot withdraw from.</div></div>
+    </div>
+    <div class="viz">
+      <div style="font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--ink4);text-align:center;margin-bottom:8px">check { Meera, purpose, system }</div>
+      <div class="rowb" style="border-color:#BFE5D2;background:var(--green-lt)">
+        <span><b style="color:var(--green)">✓ ALLOW</b> &nbsp;KYC → Core banking</span><span class="tagx tg">legal duty</span></div>
+      <div class="rowb" style="border-color:#F3C9CF;background:var(--red-lt)">
+        <span><b style="color:var(--red)">✕ BLOCK</b> &nbsp;Marketing → CRM</span><span class="tagx tr">withdrawn</span></div>
+      <div class="rowb" style="border-color:#F3C9CF;background:var(--red-lt)">
+        <span><b style="color:var(--red)">✕ BLOCK</b> &nbsp;Analytics → Warehouse</span><span class="tagx tr">system down</span></div>
+      <div style="font-size:10px;color:var(--ink4);text-align:center;margin-top:8px">Under 50ms · a reason in plain English, never an error code</div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#0EA672">
+  <div class="mhead"><div class="mnum">7</div><div class="mtitle">Privacy Center</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The requests desk. When a customer exercises a right — <b>show me my data, correct it, delete it, raise a complaint, nominate someone</b> — it lands here with a clock ticking, runs as a fan-out across systems, and ends in a certificate proving it was done.</div>
+      <div class="eg"><div class="et"><div class="el">For example</div>Meera asks for a copy of everything held about her. The platform first <b>verifies it is really her</b> by OTP, then collects from eight systems, and delivers a machine-readable file plus a completion certificate — inside the response window.</div></div>
+    </div>
+    <div class="viz">
+      <div class="chips" style="margin-bottom:10px">
+        <span class="chip on">Access</span><span class="chip">Correction</span><span class="chip">Erasure</span><span class="chip">Grievance</span><span class="chip">Nomination</span>
+      </div>
+      <div class="vflow">
+        <div class="vstep"><span class="n">1</span><span>Request arrives · <b>clock starts</b></span></div>
+        <div class="varr">↓</div>
+        <div class="vstep"><span class="n">2</span><span>Verify it is really her (OTP)</span></div>
+        <div class="varr">↓</div>
+        <div class="vstep"><span class="n">3</span><span>Fan out to every system holding data</span></div>
+        <div class="varr">↓</div>
+        <div class="vstep"><span class="n">4</span><span>Certificate written to the audit trail</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#0EA672">
+  <div class="mhead"><div class="mnum">8</div><div class="mtitle">Preference Center <span class="mstar">★ DEAL-WINNER</span></div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The only screen your <b>customer</b> ever sees. Your brand, their language, their phone — a simple list of switches, one per purpose. Two lines of code embed it in your existing app. Flipping a switch here is identical in effect to any other channel.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">Meera opens the bank's app, taps <b>Privacy</b>, and sees four switches in Tamil. She turns marketing off. That single tap writes an event, issues her a receipt, and starts the fan-out across eight systems — in under a second.</div></div>
+    </div>
+    <div class="viz">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div style="background:var(--navy);border-radius:15px;padding:6px;width:132px;flex-shrink:0">
+          <div class="scr" style="border:none;border-radius:11px">
+            <div style="background:linear-gradient(135deg,var(--blue),#1550B8);padding:9px;color:#fff"><div style="font-size:10px;font-weight:700">Meridian Bank</div><div style="font-size:8px;opacity:.85">உங்கள் தனியுரிமை</div></div>
+            <div class="sc" style="padding:9px">
+              <div class="psw"><span>கணக்கு சேவை</span><span class="tgl on lk"></span></div>
+              <div class="psw"><span>சந்தைப்படுத்தல்</span><span class="tgl"></span></div>
+              <div class="psw"><span>கூட்டாளர்கள்</span><span class="tgl"></span></div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1;font-size:10.5px;color:var(--ink3);line-height:1.6">
+          <b style="color:var(--ink)">Her brand. Her language.</b><br>
+          The top switch is <b>locked</b> — account servicing runs on legal duty, not consent, so it cannot be turned off.<br><br>
+          <span style="color:var(--green);font-weight:650">EN · தமிழ் · हिंदी + 6 more</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ GROUP 3 ============ -->
+<section id="g3" class="ghead"><h2><i style="background:#C8860D"></i>Automation</h2><p>The machinery that carries a decision everywhere, without anyone lifting a finger. Two modules.</p></section>
+
+<div class="mod" style="--c:#C8860D">
+  <div class="mhead"><div class="mnum">9</div><div class="mtitle">Orchestration <span class="mstar">★★ THE MONEY SHOT</span></div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The messenger. One consent change fans out to <b>every system that holds that customer's data</b>, in real time. Most acknowledge. Some retry. And when one genuinely fails, it is caught in a queue with a person's name on it — never silently dropped.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">Meera withdraws marketing. Seven systems stop within 420ms. The SMS gateway times out but succeeds on retry. The data warehouse fails — <b>its credentials expired</b> — and drops into the dead-letter queue, assigned to the DPO.</div></div>
+    </div>
+    <div class="viz">
+      <svg viewBox="0 0 260 190" style="width:100%;height:auto">
+        <g stroke-width="1.6">
+          <line x1="130" y1="95" x2="130" y2="30" stroke="#0EA672"/><line x1="130" y1="95" x2="176" y2="49" stroke="#0EA672"/>
+          <line x1="130" y1="95" x2="195" y2="95" stroke="#0EA672"/><line x1="130" y1="95" x2="176" y2="141" stroke="#C8860D"/>
+          <line x1="130" y1="95" x2="130" y2="160" stroke="#0EA672"/><line x1="130" y1="95" x2="84" y2="141" stroke="#0EA672"/>
+          <line x1="130" y1="95" x2="65" y2="95" stroke="#0EA672"/><line x1="130" y1="95" x2="84" y2="49" stroke="#DC2B45"/>
+        </g>
+        <circle cx="130" cy="95" r="25" fill="#0B2545"/>
+        <text x="130" y="92" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fff">CONSENT</text>
+        <text x="130" y="101" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fff">ENGINE</text>
+        <g font-size="6.5" font-weight="600" text-anchor="middle">
+          <circle cx="130" cy="30" r="12" fill="#E7F6EF" stroke="#0EA672" stroke-width="1.6"/><text x="130" y="32" fill="#0EA672">CBS</text>
+          <circle cx="176" cy="49" r="12" fill="#E7F6EF" stroke="#0EA672" stroke-width="1.6"/><text x="176" y="51" fill="#0EA672">CRM</text>
+          <circle cx="195" cy="95" r="12" fill="#E7F6EF" stroke="#0EA672" stroke-width="1.6"/><text x="195" y="97" fill="#0EA672">MKT</text>
+          <circle cx="176" cy="141" r="12" fill="#FBF3E4" stroke="#C8860D" stroke-width="1.6"/><text x="176" y="143" fill="#C8860D">SMS</text>
+          <circle cx="130" cy="160" r="12" fill="#E7F6EF" stroke="#0EA672" stroke-width="1.6"/><text x="130" y="162" fill="#0EA672">LOS</text>
+          <circle cx="84" cy="141" r="12" fill="#E7F6EF" stroke="#0EA672" stroke-width="1.6"/><text x="84" y="143" fill="#0EA672">CLD</text>
+          <circle cx="65" cy="95" r="12" fill="#E7F6EF" stroke="#0EA672" stroke-width="1.6"/><text x="65" y="97" fill="#0EA672">VND</text>
+          <circle cx="84" cy="49" r="12" fill="#FCECEE" stroke="#DC2B45" stroke-width="1.6"/><text x="84" y="51" fill="#DC2B45">DWH</text>
+        </g>
+      </svg>
+      <div style="display:flex;gap:11px;justify-content:center;font-size:9.5px;color:var(--ink3);margin-top:4px">
+        <span>🟢 stopped (7)</span><span>🟠 retried</span><span>🔴 failed → queued</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#C8860D">
+  <div class="mhead"><div class="mnum">10</div><div class="mtitle">Workflow Builder</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">Where a compliance officer sets the rules — <b>by clicking, not coding</b>. It reads like a recipe card: WHEN this happens, THEN do these steps, and IF a step fails, do this. A Test Run walks through it in green without touching anything live.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">The DPO builds: <b>WHEN a consent is 30 days from expiry, THEN send a renewal notice, WAIT 7 days, and IF still no reply, escalate to me.</b> No developer involved. It now runs automatically for every expiring consent.</div></div>
+    </div>
+    <div class="viz">
+      <div class="vflow">
+        <div class="vstep" style="border-left:3px solid var(--blue)"><span class="n" style="background:var(--blue)">W</span><span><b>WHEN</b> consent 30 days from expiry</span></div>
+        <div class="varr">↓</div>
+        <div class="vstep" style="border-left:3px solid var(--green)"><span class="n" style="background:var(--green)">T</span><span><b>THEN</b> send renewal notice · wait 7 days</span></div>
+        <div class="varr">↓</div>
+        <div class="vstep" style="border-left:3px solid var(--amber)"><span class="n" style="background:var(--amber)">!</span><span><b>IF FAILS</b> retry 3× then escalate to DPO</span></div>
+      </div>
+      <div style="text-align:center;margin-top:9px"><span class="tagx tg">▶ Test run · 3 steps green · zero live effect</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ GROUP 4 ============ -->
+<section id="g4" class="ghead"><h2><i style="background:#6C4BD8"></i>Enterprise</h2><p>The plumbing: connections, alerts, the tamper-proof log, and the reports. Four modules.</p></section>
+
+<div class="mod" style="--c:#6C4BD8">
+  <div class="mhead"><div class="mnum">11</div><div class="mtitle">Enterprise Usage</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The switchboard. Every connected system with its <b>live health, speed and volume</b> — which are up, which are slow, which are offline. It is how you know your enforcement actually reaches everywhere it should.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">At a glance you see the data warehouse is <b>offline</b> — credentials expired four hours ago — which explains why erasure requests are queuing and why the permission grid has a red column.</div></div>
+    </div>
+    <div class="viz">
+      <div class="rowb"><span>Core banking · Finacle</span><span class="tagx tg">up · 34ms</span></div>
+      <div class="rowb"><span>CRM · Salesforce</span><span class="tagx tg">up · 51ms</span></div>
+      <div class="rowb"><span>Marketing · Adobe</span><span class="tagx ta">degraded · 890ms</span></div>
+      <div class="rowb"><span>Data warehouse · Snowflake</span><span class="tagx tr">offline</span></div>
+      <div style="font-size:10px;color:var(--ink4);text-align:center;margin-top:7px">8 systems connected · heartbeat every 30s</div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#6C4BD8">
+  <div class="mhead"><div class="mnum">12</div><div class="mtitle">Notifications</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The alarm system. Decides <b>who gets told what, and how loudly</b>. Compliance failures are usually failures to notice in time, so this makes sure the right person hears about a problem while it is still small.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">A rule says: <i>if any erasure request comes within 72 hours of its deadline, alert the DPO on Slack and email.</i> Three requests trip it this morning, so Ananya is told before any window is missed.</div></div>
+    </div>
+    <div class="viz">
+      <div class="flow" style="margin-bottom:9px">
+        <div class="fstep"><div class="ft">Event</div><div class="fd">DSR near SLA</div></div><span class="farr">→</span>
+        <div class="fstep"><div class="ft">Rule</div><div class="fd">&lt; 72 hours</div></div><span class="farr">→</span>
+        <div class="fstep"><div class="ft">Who</div><div class="fd">DPO</div></div><span class="farr">→</span>
+        <div class="fstep"><div class="ft">How</div><div class="fd">Slack + email</div></div>
+      </div>
+      <div class="rowb"><span>⚠ 3 erasure requests near SLA</span><span class="tagx tr">High</span></div>
+      <div class="rowb"><span>⚠ CloudMailer DPA expired</span><span class="tagx tr">Critical</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#6C4BD8">
+  <div class="mhead"><div class="mnum">13</div><div class="mtitle">Audit Center</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The tamper-proof black box. Every action ever taken, recorded so it <b>cannot be quietly altered</b>. Each entry carries a fingerprint of the one before it, so changing any record breaks the chain visibly. One click verifies the lot.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">The regulator asks: <i>prove marketing never contacted Meera after she withdrew.</i> You open the chain, click verify, and it confirms 5,000 entries with no breaks — including her withdrawal and every BLOCK decision since.</div></div>
+    </div>
+    <div class="viz">
+      <div class="hashb"><span class="lbl">Consent granted</span><span class="h">#a41f…9c2</span></div>
+      <div class="lnk">🔗</div>
+      <div class="hashb"><span class="lbl">Decision · ALLOW</span><span class="h">#b73e…4d1</span></div>
+      <div class="lnk">🔗</div>
+      <div class="hashb"><span class="lbl">Consent withdrawn</span><span class="h">#c19a…7f8</span></div>
+      <div class="lnk">🔗</div>
+      <div class="hashb"><span class="lbl">Decision · BLOCK</span><span class="h">#d52c…1b6</span></div>
+      <div style="margin-top:8px;padding:8px 11px;background:var(--green-lt);border-radius:8px;font-size:10.5px;color:var(--green);font-weight:650;text-align:center">✓ Chain verified — no breaks</div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#6C4BD8">
+  <div class="mhead"><div class="mnum">14</div><div class="mtitle">Reports</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">Regulator-ready report packs that <b>build themselves</b> from the audit trail. Nobody assembles them by hand — and because they are generated from the immutable log rather than typed in, they cannot be quietly adjusted.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">The quarterly board pack — consent coverage, rights performance, breach summary, vendor status — used to take an analyst a week of spreadsheets. Now it is a button, and the numbers reconcile with the audit chain by construction.</div></div>
+    </div>
+    <div class="viz">
+      <div class="flow" style="margin-bottom:10px">
+        <div class="fstep"><div class="ft">Audit chain</div><div class="fd">source of truth</div></div><span class="farr">→</span>
+        <div class="fstep"><div class="ft">Generate</div><div class="fd">one click</div></div><span class="farr">→</span>
+        <div class="fstep"><div class="ft">Report pack</div><div class="fd">PDF · signed</div></div>
+      </div>
+      <div class="grid3">
+        <div class="g3c"><div class="i" style="font-size:12px">Consent</div><div class="t">coverage</div></div>
+        <div class="g3c"><div class="i" style="font-size:12px">Rights</div><div class="t">SLA</div></div>
+        <div class="g3c"><div class="i" style="font-size:12px">Breach</div><div class="t">summary</div></div>
+      </div>
+      <div style="font-size:10px;color:var(--ink4);text-align:center;margin-top:7px">8 packs · figures not manually editable</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ GROUP 5 ============ -->
+<section id="g5" class="ghead"><h2><i style="background:#3B7DE0"></i>Intelligence</h2><p>The layer that watches for trouble a human would miss. One module.</p></section>
+
+<div class="mod" style="--c:#3B7DE0">
+  <div class="mhead"><div class="mnum">15</div><div class="mtitle">AI Compliance</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The night-shift analyst. It watches everything and flags the <b>strange things a person would never spot</b> — unusual volumes, odd logins, consents given suspiciously fast. It proposes; a human always decides. It never acts alone.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">A campaign pulls <b>84,000 profiles at 2am</b> against a normal baseline of 2,000. It is flagged within minutes. Separately, one branch averages 18-second consents — meaning nobody there is actually reading the notice to customers.</div></div>
+    </div>
+    <div class="viz">
+      <div class="spark" style="margin-bottom:9px">
+        <i style="height:16%;background:#CBDCF3"></i><i style="height:20%;background:#CBDCF3"></i><i style="height:14%;background:#CBDCF3"></i>
+        <i style="height:22%;background:#CBDCF3"></i><i style="height:18%;background:#CBDCF3"></i><i style="height:100%;background:#DC2B45"></i>
+        <i style="height:19%;background:#CBDCF3"></i><i style="height:15%;background:#CBDCF3"></i>
+      </div>
+      <div class="rowb" style="border-color:#F3C9CF;background:var(--red-lt)"><span>84,000 profiles pulled at 02:14</span><span class="tagx tr">42× baseline</span></div>
+      <div class="rowb"><span>Branch BLR-04 · 18s avg consent</span><span class="tagx ta">notice unread</span></div>
+      <div style="font-size:10px;color:var(--ink4);text-align:center;margin-top:7px">AI proposes · a human decides · never files alone</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ GROUP 6 ============ -->
+<section id="g6" class="ghead"><h2><i style="background:#DC2B45"></i>Governance</h2><p>The heavier duties — used rarely, and they have to work. Six modules.</p></section>
+
+<div class="mod" style="--c:#DC2B45">
+  <div class="mhead"><div class="mnum">16</div><div class="mtitle">Breach Response</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The emergency room. A breach is not really a security event — it is a <b>reporting event with a clock on it</b>. This runs the countdown, works out exactly who was affected from the evidence vault, drafts the notices, and assembles the report. Then it stops: <b>a human signs it, not a machine</b>.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">A vendor leak is detected at 09:12. The clock starts. The platform computes <b>12,480 affected customers</b> from actual records — not an estimate — drafts notices in nine languages, and assembles the Board report. The DPO reviews and signs.</div></div>
+    </div>
+    <div class="viz">
+      <div class="clockrow" style="border-color:#F3C9CF;background:var(--red-lt);margin-bottom:8px">
+        <span style="font-size:15px">⏱</span><span class="c" style="color:var(--red)">41:18:32</span><span style="font-size:10px;color:var(--ink3)">until the reporting window closes</span></div>
+      <div class="vflow">
+        <div class="vstep"><span class="n">1</span><span>Who was affected? <b>12,480</b> — from evidence, not a guess</span></div>
+        <div class="varr">↓</div>
+        <div class="vstep"><span class="n">2</span><span>Notices drafted in 9 languages</span></div>
+        <div class="varr">↓</div>
+        <div class="vstep" style="border-left:3px solid var(--red)"><span class="n" style="background:var(--red)">3</span><span><b>Human signs before filing</b></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#DC2B45">
+  <div class="mhead"><div class="mnum">17</div><div class="mtitle">Children's Data</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The special-care ward. A child cannot legally consent — a <b>verified guardian</b> must, and the platform has to prove that guardian was real. A tick-box saying "I am a parent" is refused. Marketing, profiling and tracking are hard-blocked for every minor, and <b>no role can override it</b>.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">Anika is 17 with a youth account. Her guardian was never verified, so the platform blocks 8 processing purposes automatically. Vihaan turns 18 in 22 days — the platform will invite him to re-consent in his own right.</div></div>
+    </div>
+    <div class="viz">
+      <div class="tree" style="text-align:center">
+        <span class="tnode">Is the customer under 18?</span>
+        <div class="tsplit" style="margin-top:8px">
+          <div class="tbranch"><div class="lb">No</div><span class="tnode" style="border-color:#BFE5D2;background:var(--green-lt);color:var(--green)">Normal consent</span></div>
+          <div class="tbranch"><div class="lb">Yes</div><span class="tnode">Guardian verified?</span>
+            <div class="tsplit" style="margin-top:7px">
+              <div class="tbranch"><div class="lb">Yes</div><span class="tnode" style="font-size:9.5px;border-color:#BFE5D2;background:var(--green-lt);color:var(--green)">Limited purposes</span></div>
+              <div class="tbranch"><div class="lb">No</div><span class="tnode" style="font-size:9.5px;border-color:#F3C9CF;background:var(--red-lt);color:var(--red)">All blocked</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:9.5px;color:var(--ink4);text-align:center;margin-top:9px">Marketing · profiling · tracking — permanently blocked for minors, no override</div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#DC2B45">
+  <div class="mhead"><div class="mnum">18</div><div class="mtitle">SDF Pack</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">Extra paperwork for the big players. Large organisations get designated <b>Significant Data Fiduciaries</b>, which switches on two additional duties: a formal impact assessment, and an independent audit every year. Includes a workspace where an outside auditor can inspect <b>without ever seeing raw personal data</b>.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">The bank is designated an SDF. Its DPIA is complete and approved; the independent audit is <b>marked "not yet commissioned"</b> — because it hasn't been. The platform shows the truth rather than a green tick.</div></div>
+    </div>
+    <div class="viz">
+      <div class="rowb"><span>Impact assessment (DPIA)</span><span class="tagx tg">approved</span></div>
+      <div class="rowb"><span>Independent annual audit</span><span class="tagx ta">not commissioned</span></div>
+      <div class="rowb"><span>Auditor workspace</span><span class="tagx tb">PII masked</span></div>
+      <div style="margin-top:9px;padding:9px 11px;background:#fff;border:1px solid var(--line);border-radius:8px;font-size:10px;color:var(--ink3);line-height:1.5">
+        <b style="color:var(--ink)">Auditor sees:</b> decisions, chains, policies, dates.<br>
+        <b style="color:var(--ink)">Auditor never sees:</b> names, numbers, addresses.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#DC2B45">
+  <div class="mhead"><div class="mnum">19</div><div class="mtitle">Administration</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The engine room — four tabs of unglamorous, essential governance: <b>where personal data actually lives</b> across the estate, the register of vendors who touch it, the rules for how long things are kept, and who is allowed to do what.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">The vendor register shows CloudMailer's data processing agreement <b>expired on 11 July</b>. That single fact is why the permission grid auto-blocked an entire column — governance data driving enforcement.</div></div>
+    </div>
+    <div class="viz">
+      <div class="tabs"><span class="tab on">Data map</span><span class="tab">Vendors</span><span class="tab">Retention</span><span class="tab">Roles</span></div>
+      <div class="rowb"><span>Personal data locations found</span><span class="tagx tb">42 systems</span></div>
+      <div class="rowb"><span>Vendors with data access</span><span class="tagx tb">17</span></div>
+      <div class="rowb" style="border-color:#F3C9CF;background:var(--red-lt)"><span>CloudMailer Inc. · DPA</span><span class="tagx tr">expired 11 Jul</span></div>
+      <div class="rowb"><span>Retention rules configured</span><span class="tagx tg">28 categories</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#DC2B45">
+  <div class="mhead"><div class="mnum">20</div><div class="mtitle">Developers</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The workshop. Where the bank's own engineers get what they need to wire Consentia into their systems — the API, sample keys, webhooks, SDKs and the embeddable widget. It signals <b>"we are built to plug into your world"</b>, which is what a technical buyer checks before trusting anything.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">A developer adds one call before the CRM sends any email. If it returns BLOCK, the send never happens. That is the entire integration — <b>one question, asked every time</b>.</div></div>
+    </div>
+    <div class="viz">
+      <div class="api"><span class="c">// before any use of personal data</span><br>
+POST <span class="k">/v1/consent/check</span><br>
+{ <span class="k">"customer"</span>: <span class="s">"CUS-2048"</span>,<br>
+&nbsp;&nbsp;<span class="k">"purpose"</span>: <span class="s">"marketing"</span>,<br>
+&nbsp;&nbsp;<span class="k">"system"</span>: <span class="s">"crm"</span> }<br><br>
+<span class="c">→ response in 34ms</span><br>
+{ <span class="k">"decision"</span>: <span style="color:#FFAFBB">"BLOCK"</span>,<br>
+&nbsp;&nbsp;<span class="k">"reason"</span>: <span class="s">"consent withdrawn"</span> }</div>
+      <div style="font-size:10px;color:var(--ink4);text-align:center;margin-top:7px">4 SDKs · signed webhooks · sandbox keys</div>
+    </div>
+  </div>
+</div>
+
+<div class="mod" style="--c:#DC2B45">
+  <div class="mhead"><div class="mnum">21</div><div class="mtitle">Settings</div></div>
+  <div class="mbody">
+    <div>
+      <div class="mwhat">The control panel — the bank's own details, its notice text, its languages, and its enforcement defaults. Importantly, the <b>response-time windows are set by the bank's own lawyers</b>, not hard-coded by us, and are clearly marked until counsel confirms them.</div>
+      <div class="eg"><div class="el">For example</div><div class="et">The rights-response window shows <b>"awaiting counsel sign-off"</b> until the bank's legal team confirms the number. The platform never pretends to have decided the law on their behalf.</div></div>
+    </div>
+    <div class="viz">
+      <div class="rowb"><span>Notice text · version</span><span class="tagx tb">v4.2</span></div>
+      <div class="rowb"><span>Languages enabled</span><span class="tagx tg">9</span></div>
+      <div class="rowb" style="border-color:#EBD9B0;background:var(--amber-lt)"><span>Rights response window</span><span class="tagx ta">awaiting counsel</span></div>
+      <div class="rowb" style="border-color:#EBD9B0;background:var(--amber-lt)"><span>Breach reporting window</span><span class="tagx ta">awaiting counsel</span></div>
+      <div style="font-size:10px;color:var(--ink4);text-align:center;margin-top:7px">Legally sensitive numbers stay configurable — never hard-coded</div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<section class="closing"><div class="wrap">
+  <h2>Capture. Enforce. Change. Prove.</h2>
+  <p>Twenty-one screens doing one job: keeping what your systems do in step with what your customers agreed to — and being able to show it.</p>
+</div></section>
+
+<div class="foot">Consentia — Module Guide (visual) · companion to the Working Guide, FSD v2.0 and Architecture v2.0.<br>
+Not legal advice — verify every compliance point with qualified Indian privacy counsel.</div>
+
+</body>
+</html>

@@ -1,0 +1,308 @@
+// Consentia — core data model (FSD v2.0 §6)
+// Design notes:
+//  - ConsentEvent is append-only (SYS-01): the service layer never issues UPDATE/DELETE
+//    against it. ConsentState is a derived read model, recomputed after every event.
+//  - AuditEvent is the hash-chained evidence log (SYS-04): every ConsentEvent, DecisionLog,
+//    DSR transition, Drive action and Command/DLQ transition writes one AuditEvent, each
+//    embedding sha256(previous AuditEvent's hash + canonical JSON of this entry).
+//  - Everything is scoped to a single Entity because the platform is single-tenant (SYS-11).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LegalBasis {
+  CONSENT
+  LEGAL_OBLIGATION
+  CONTRACT
+}
+
+enum ConsentAction {
+  GRANT
+  WITHDRAW
+  EXPIRE
+}
+
+enum ConsentStatus {
+  VALID
+  WITHDRAWN
+  EXPIRED
+  PENDING
+  MINOR_BLOCKED
+}
+
+enum Decision {
+  ALLOW
+  BLOCK
+}
+
+enum Channel {
+  MOBILE_APP
+  WEB
+  WHATSAPP
+  BRANCH
+  CALL_CENTRE
+  EMAIL_LINK
+  QR
+  PARTNER_API
+  PREFERENCE_CENTER
+}
+
+enum DsrType {
+  ACCESS
+  CORRECTION
+  ERASURE
+  GRIEVANCE
+  NOMINATION
+}
+
+enum DsrStatus {
+  RECEIVED
+  VERIFYING
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+}
+
+enum DriveStatus {
+  SCHEDULED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum ConnectorHealth {
+  UP
+  DEGRADED
+  DOWN
+}
+
+enum CommandStatus {
+  PENDING
+  DISPATCHED
+  ACKED
+  RETRYING
+  DEAD_LETTER
+}
+
+enum GuardianMethod {
+  NONE
+  DIGILOCKER
+  VIDEO_KYC
+  IN_PERSON
+}
+
+model Entity {
+  id        String     @id @default(cuid())
+  name      String
+  createdAt DateTime   @default(now())
+  customers Customer[]
+  purposes  Purpose[]
+  connectors Connector[]
+}
+
+model Customer {
+  id               String    @id @default(cuid())
+  entityId         String
+  entity           Entity    @relation(fields: [entityId], references: [id])
+  externalRef      String    @unique // pointer into the fiduciary's own customer master (SYS-10)
+  displayName      String
+  preferredLanguage String   @default("en")
+  dob              DateTime?
+  isMinor          Boolean   @default(false)
+  guardianVerified Boolean   @default(false)
+  guardianMethod   GuardianMethod @default(NONE)
+  createdAt        DateTime  @default(now())
+
+  consentEvents ConsentEvent[]
+  consentStates ConsentState[]
+  decisions     DecisionLog[]
+  dsRequests    DSRequest[]
+
+  @@index([entityId])
+}
+
+model Purpose {
+  id                 String     @id @default(cuid())
+  entityId           String
+  entity             Entity     @relation(fields: [entityId], references: [id])
+  code               String     // e.g. "marketing"
+  name               String     // e.g. "Marketing communications"
+  description        String
+  legalBasis         LegalBasis @default(CONSENT)
+  category           String     // e.g. "Communications", "Servicing", "Risk"
+  defaultValidityDays Int       @default(365)
+  createdAt          DateTime   @default(now())
+
+  consentEvents ConsentEvent[]
+  consentStates ConsentState[]
+  decisions     DecisionLog[]
+  drives        Drive[]
+
+  @@unique([entityId, code])
+}
+
+model Notice {
+  id          String   @id @default(cuid())
+  version     String   // e.g. "v4.2"
+  language    String   // ISO code, e.g. "ta"
+  text        String
+  publishedAt DateTime @default(now())
+
+  @@unique([version, language])
+}
+
+// Append-only. Service layer exposes only `create`, never update/delete.
+model ConsentEvent {
+  id                 String        @id @default(cuid())
+  customerId         String
+  customer           Customer      @relation(fields: [customerId], references: [id])
+  purposeId          String
+  purpose            Purpose       @relation(fields: [purposeId], references: [id])
+  action             ConsentAction
+  channel            Channel
+  noticeVersion      String
+  language           String
+  verificationMethod String        // e.g. "otp", "digilocker"
+  driveId            String?
+  drive              Drive?        @relation(fields: [driveId], references: [id])
+  receiptId          String        @unique @default(cuid())
+  createdAt          DateTime      @default(now())
+
+  auditEvent AuditEvent?
+
+  @@index([customerId, purposeId])
+  @@index([createdAt])
+}
+
+// Derived read model — recomputed by the service after every ConsentEvent write.
+// Never hand-edited (FSD §6).
+model ConsentState {
+  id            String        @id @default(cuid())
+  customerId    String
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  purposeId     String
+  purpose       Purpose       @relation(fields: [purposeId], references: [id])
+  status        ConsentStatus
+  lastEventId   String
+  grantedAt     DateTime?
+  expiresAt     DateTime?
+  withdrawnAt   DateTime?
+  updatedAt     DateTime      @updatedAt
+
+  @@unique([customerId, purposeId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+// Every ALLOW/BLOCK decision from the Validation Engine (VAL-04).
+model DecisionLog {
+  id            String   @id @default(cuid())
+  customerId    String
+  customer      Customer @relation(fields: [customerId], references: [id])
+  purposeId     String
+  purpose       Purpose  @relation(fields: [purposeId], references: [id])
+  system        String   // requesting system, e.g. "crm"
+  decision      Decision
+  reason        String
+  policyVersion String
+  contextJson   Json?
+  latencyMs     Int
+  createdAt     DateTime @default(now())
+
+  auditEvent AuditEvent?
+
+  @@index([customerId, purposeId])
+  @@index([createdAt])
+}
+
+// The hash-chained evidence log (SYS-04). One row per auditable event across the platform.
+model AuditEvent {
+  id             String   @id @default(cuid())
+  seq            Int      @unique @default(autoincrement())
+  entryType      String   // "CONSENT_EVENT" | "DECISION" | "DSR" | "DRIVE" | "COMMAND" | "BREACH"
+  actor          String   // "system" | user id/name
+  summary        String
+  payloadJson    Json
+  prevHash       String
+  hash           String
+  createdAt      DateTime @default(now())
+
+  consentEventId String?      @unique
+  consentEvent   ConsentEvent? @relation(fields: [consentEventId], references: [id])
+  decisionLogId  String?      @unique
+  decisionLog    DecisionLog? @relation(fields: [decisionLogId], references: [id])
+
+  @@index([entryType])
+}
+
+model Connector {
+  id          String          @id @default(cuid())
+  entityId    String
+  entity      Entity          @relation(fields: [entityId], references: [id])
+  name        String
+  type        String          // "core_banking" | "crm" | "marketing" | "sms" | "warehouse" | "processor"
+  health      ConnectorHealth @default(UP)
+  latencyMs   Int             @default(40)
+  simulateFail Boolean        @default(false) // demo control: force this connector to fail dispatch
+  dpaExpiresAt DateTime?
+  createdAt   DateTime        @default(now())
+
+  commands Command[]
+
+  @@unique([entityId, name])
+}
+
+model Command {
+  id             String        @id @default(cuid())
+  consentEventId String
+  connectorId    String
+  connector      Connector     @relation(fields: [connectorId], references: [id])
+  status         CommandStatus @default(PENDING)
+  attempts       Int           @default(0)
+  lastError      String?
+  owner          String?       // assigned when it lands in the DLQ (ORC-04)
+  dispatchedAt   DateTime?
+  ackedAt        DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([consentEventId])
+  @@index([status])
+}
+
+model DSRequest {
+  id           String    @id @default(cuid())
+  customerId   String
+  customer     Customer  @relation(fields: [customerId], references: [id])
+  type         DsrType
+  status       DsrStatus @default(RECEIVED)
+  verifiedAt   DateTime?
+  dueAt        DateTime
+  completedAt  DateTime?
+  certificateHash String?
+  createdAt    DateTime  @default(now())
+}
+
+model Drive {
+  id          String      @id @default(cuid())
+  name        String
+  purposeId   String
+  purpose     Purpose     @relation(fields: [purposeId], references: [id])
+  audience    String
+  channels    Channel[]
+  scheduledAt DateTime?
+  status      DriveStatus @default(SCHEDULED)
+  targeted    Int         @default(0)
+  responses   Int         @default(0)
+  approved    Int         @default(0)
+  rejected    Int         @default(0)
+  createdAt   DateTime    @default(now())
+
+  consentEvents ConsentEvent[]
+}
