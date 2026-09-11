@@ -52,8 +52,8 @@ export default function Orchestration() {
                 <g key={c.id}>
                   <line x1={cx} y1={cy} x2={x} y2={y} stroke={color} strokeWidth={1.4} opacity={0.6} />
                   <circle cx={x} cy={y} r={26} fill={`${color}1A`} stroke={color} strokeWidth={1.6} />
-                  <text x={x} y={y + 4} textAnchor="middle" fontSize={9} fontWeight={700} fill={color}>
-                    {c.name.split(" ")[0].slice(0, 8)}
+                  <text x={x} y={y + 4} textAnchor="middle" fontSize={c.name.split(" ")[0].length > 6 ? 7.5 : 9} fontWeight={700} fill={color}>
+                    {c.name.split(" ")[0]}
                   </text>
                 </g>
               );
