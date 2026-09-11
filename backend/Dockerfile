@@ -1,5 +1,10 @@
-FROM node:22-alpine
+FROM node:22-slim
 WORKDIR /app
+
+# Prisma's query engine needs OpenSSL, which isn't in the slim base image.
+# (node:22-alpine also fails here — its musl libc build of the engine crashes
+# on startup with a non-JSON error that Prisma then fails to parse.)
+RUN apt-get update -y && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
