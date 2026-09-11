@@ -12,8 +12,10 @@ RUN npm ci
 
 COPY . .
 RUN npx prisma generate
+RUN chmod +x docker-entrypoint.sh
 
 EXPOSE 4000
 # migrate + seed on every start: cheap, and guarantees a clean, known demo state
 # (the seed script truncates first) every time you run `docker compose up`.
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run prisma:seed && npm run dev"]
+# docker-entrypoint.sh retries the initial DB connection instead of failing once.
+CMD ["./docker-entrypoint.sh"]
